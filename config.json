@@ -1,0 +1,8 @@
+{
+    "llm_prompt_url": "http://localhost:11434/api/generate",
+    "llm_chat_url": "http://localhost:11434/api/chat",
+    "llm_prompt": "gemma2",
+    "llm_function": "mistral:instruct",
+    "llm_chat": "phi3",
+    "llm_vision": "llava"
+}
