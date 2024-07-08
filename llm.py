@@ -27,6 +27,12 @@ def visual(prompt, imgs, model=config.get('llm_vision')):
     response = requests.post(url, json=data)
     return response.text
 
+def embeddings(prompt, model=config.get('llm_embeddings')):
+    url = config.get('llm_embeddings_url')
+    data = {"model": model, "prompt": prompt}
+    response = requests.post(url, json=data)
+    return response.json()['embedding']
+
 if __name__=='__main__':
     print(generate('what is blackhole', 'you are talking to a 5 year old boy'))
     print(chat([{"role": "user", "content": "hi"}]))

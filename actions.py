@@ -3,12 +3,11 @@ import base64
 from io import BytesIO
 import pyautogui
 from youtube_transcript_api import YouTubeTranscriptApi
-import chromadbutils as cdu
-from gtts import gTTS
-import playsound
+import llmrag as cdu
+import log
 
 youtube_transcript_dir = 'c:\youtube_transcripts'
-
+collection_name = 'persisted_collection'
 # Sample text
 """
 [TOOL_CALLS] [{'name': 'get_current_weather', 'arguments': {'location': 'Tokyo', 'format': 'celsius'}}]
@@ -93,22 +92,29 @@ def add_to_rag(url):
     video_id = get_youtube_video_id(url)
     document = get_youtube_transcript(video_id)
     save_text_to_file(f"{youtube_transcript_dir}\\{video_id}.txt", document)
-    cdu.add_youtub_transcript_to_db(video_id)
+    cdu.add_youtub_transcript_to_db(video_id, collection_name)
 
 def query_rag(query):
-    response = cdu.query(query)
+    response = cdu.query(query, collection_name)
+    log.stdout(str(response))
     ids = response['ids']
     distances = response['distances']
     metadatas = response['metadatas']
     documents = response['documents']
     return ids, distances, metadatas, documents
 
-def read_out (text, lang = 'en'):
-    tts = gTTS(text = text, lang = lang, slow=False)
-    soundfile = f"readout{lang}.mp3"
-    tts.save(soundfile)
-    playsound.playsound(sound=soundfile,  block = True)
-    os.remove(soundfile)
+"""
+read_out is depreciated because gTTS require internat connection and 
+the tex it sent to google for voice.  gTTS cannot speed adjustment
+gTTS cannot change voice
+"""
+# def read_out (text, lang = 'en'):
+#     tts = gTTS(text = text, lang = lang, slow=False)
+#     soundfile = f"readout{lang}.mp3"
+#     tts.save(soundfile)
+    
+#     playsound.playsound(sound=soundfile,  block = True)
+#     os.remove(soundfile)
 
 if __name__=='__main__':
     # video_id = input('video id: ')

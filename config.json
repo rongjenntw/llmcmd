@@ -1,8 +1,12 @@
 {
     "llm_prompt_url": "http://localhost:11434/api/generate",
     "llm_chat_url": "http://localhost:11434/api/chat",
+    "llm_embeddings_url": "http://localhost:11434/api/embeddings",
     "llm_prompt": "gemma2",
     "llm_function": "mistral:instruct",
     "llm_chat": "phi3",
-    "llm_vision": "llava"
+    "llm_vision": "llava",
+    "llm_embeddings": "nomic-embed-text",
+    "log_level_info": "4 = debug, 3 = info, 2 = warn, 1 = error, 0 = fatai",
+    "log_level": 4
 }

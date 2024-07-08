@@ -1,23 +1,34 @@
-import json, llmtools, functiondef
-import llm, actions
+import json, voiceutils, functiondef
+import sys
+import llm, actions, log
 import os
 """
 all llm flows are here
 """
 
-def simple_chat_flow():
+def simple_chat_flow(system_prompt = "You are a helpful assistant."):
     """
     simple chat with llm
+    enter '!' to read out the previous response from the chat bot
+    enter '#' to translate the previous response from the chat bot to Chinese
+    enter '#!' to read out the previous response from the chat bot in Chinese
     """
-    msgs = []
+    msgs = [{"role": "system", "content": system_prompt}]
+    prevresp = "Beginning of conversation"
+    actor = voiceutils.BOB
     while True:
-        msgs.append(
-            {"role":"user", "content": input("you: ")}
-        )
-        response = llm.chat(msgs)
-        respmsg = json.loads(response)['message']
-        msgs.append(respmsg)
-        print("bot: " + respmsg['content'])
+        user_prompt = input("chat> ")
+        char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor)
+        if(char_count == 0):
+            msgs.append(
+                {"role":"user", "content": user_prompt}
+            )
+            response = llm.chat(msgs)
+            respmsg = json.loads(response)['message']
+            msgs.append(respmsg)
+            prevresp = respmsg['content']
+            print(prevresp)
+            actor = voiceutils.BOB
 
 def simple_prompt_flow(prompt, context):
     """
@@ -26,6 +37,22 @@ def simple_prompt_flow(prompt, context):
     response = llm.generate(prompt, context)
     #print(json.loads(response))
     return json.loads(response)['response']
+
+def revelent_questions_flow(prompt):
+    """
+    Convert the user's request to revelent questions.
+    This is useful for understanding the user's intent and 
+    generating relevant questions to ask about their request.
+    For example:
+    user: I want a pizza
+    bot: What kind of pizza do you prefer? (Italian, Vegetarian, etc.)
+    user: Italian
+    bot: What type of crust would you like? (Deep Dish, Stuffed, etc.)
+    user: Deep Dish
+    bot: What size do you prefer? (Small, Medium, Large)
+    user: Small
+    bot: What toppings would you like? (Cheese, Olives, Pepperoni)
+    """
 
 def translation_flow(prompt, source_lang, target_lang):
     """
@@ -63,12 +90,16 @@ def rag_flow(prompt):
     for the prompt
     """
     ids, distances, metadatas, documents = actions.query_rag(prompt)
-    response = simple_prompt_flow(prompt, documents[0][0])
-    print(ids, distances, metadatas)
+    if (documents[0]):
+        context = documents[0][0]
+    else:
+        context = "no records found"
+    print("rag reference", ids, distances, metadatas)
+    response = simple_prompt_flow(prompt, context)
     #print(documents[0][0]) #print context (metadata of the document)
     return response
 
-def simple_function_call_flow(prompt):
+def function_call_flow(prompt):
     """
     invoke the most revelent function for answering 
     the user's question
@@ -98,7 +129,7 @@ def oneshot_prompt_flow():
      revelent to the question then send it to llm 
     """
 
-def combo_flow():
+def combo_flow(user_promot=None):
     """
     regular prompt flow
     ~ simple prompt
@@ -108,47 +139,66 @@ def combo_flow():
     # translate response from one language to another
     ! read the response outloud
     """   
-    user_prompt = input("> ")
-    #count the occurrence of @#! characters of the first 3 characters of user_prompt
+    user_prompt = user_promot or input("combo> ")
+    #prevresp = "Beginning of conversation"
+    actor = voiceutils.BOB
+    #char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor)
     char_count = sum([user_prompt[:3].count(c) for c in "~@#!"])
-    to_translate = "#" in user_prompt[:3] and char_count>1
-    to_read_out = "!" in user_prompt[:3] and char_count>1
     response = ""
-    response_trans = ""
+    #response_trans = ""
     if "/" == user_prompt[:1]:
         command_flow(user_prompt[1:])
     elif char_count == 0:
         os.system(user_prompt)
-    elif "@+" == user_prompt[:2]:
-        actions.add_to_rag(user_prompt[1:])
-    elif "@" == user_prompt[:char_count]:
-        response = rag_flow(user_prompt[char_count:])
-        print(response)
-    elif "#" == user_prompt[:1]:
-        response = simple_prompt_flow(user_prompt[1:], "You are a helpful assistant.  You reply answers in plan text friendly for displaying on a terminal window.")
-        print(response)
-    elif "~":
+    elif "~" == user_prompt[:1]:
         response = simple_prompt_flow(user_prompt, "You are a helpful assistant.  You reply answers in plan text friendly for displaying on a terminal window.")
-        print(response)
+        log.stdout(response, log.DEBUG)
+    elif "@+" in user_prompt[:2]:
+        actions.add_to_rag(user_prompt[1:])
+    elif "@" in user_prompt[:char_count]:
+        response = rag_flow(user_prompt[char_count:])
+        log.stdout(response, log.DEBUG)
 
+    char_count, prevresp, actor = prompt_actions(user_prompt, response, actor)
+
+    return prevresp
+
+    # if (to_translate):
+    #     response_trans = translation_flow(response, "English", "Chinese Traditional")
+    #     print(response_trans)
+    # if (to_read_out):
+    #     actions.read_out(response)
+    #     if(to_translate):
+    #         actions.read_out(response_trans, voice.JENNY)
+"""
+! = read out action
+# = translation action
+"""
+def prompt_actions(user_prompt, prevresp, actor):
+    char_count = sum([user_prompt[:3].count(c) for c in "~@#!"])
+    to_translate = "#" in user_prompt[:3] and char_count>0
+    to_read_out = "!" in user_prompt[:3] and char_count>0
     if (to_translate):
-        response_trans = translation_flow(response, "English", "Chinese Traditional")
-        print(response_trans)
+        prevresp = translation_flow(prevresp, "English", "Chinese Traditional")
+        log.stdout(prevresp, log.DEBUG)
+        actor = voiceutils.JENNY
+    print(prevresp)
     if (to_read_out):
-        actions.read_out(response)
-        if(to_translate):
-            actions.read_out(response_trans, lang = 'zh-TW')
+        voiceutils.read_out(prevresp, actor)
+    return char_count, prevresp, actor
 
 def main():
     while True:
-        combo_flow()    
+        print(combo_flow())
+
+def chat():
+    simple_chat_flow()
 
 if __name__=="__main__":
-    #simple_chat_flow()
-    #simple_function_call_flow(' What is the weather like today in Tokyo ')
-    #simple_function_call_flow('open my web browser')
-    # whats_on_my_screen()
-    while True:
-        #simple_function_call_flow(input("> "))
-        #command_flow(input("> "))
-        combo_flow()
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-c":
+            chat()
+        else:
+            combo_flow(sys.argv[1])
+    else:
+        main()
