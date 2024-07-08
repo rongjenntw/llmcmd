@@ -2,18 +2,20 @@
 vector database utilities
 """
 
-import requests
+import requests, json
 #from sentence_transformers import SentenceTransformer
 import log, llm
 
+with open('config.json', 'r') as file:
+    config = json.load(file)
 # Load a pre-trained model
 #model = SentenceTransformer('all-MiniLM-L6-v2')
-doc_path = "C:\\youtube_transcripts"
+doc_path = config.get('rag_doc_dir')
 
 # Define the base URL of your ChromaDB REST API
-chroma_db_url = "http://localhost:8000/api/v1"
+chroma_db_url = config.get('ragdb_url')
 # Define the collection name and the query parameters
-persist_directory = "youtube_db"
+persist_directory = config.get('ragdb_path')
 #collection_name = "peristed_collection"
 
 # Define the endpoints for various operations
@@ -32,15 +34,12 @@ def add_youtub_transcript_to_db(video_id, collection_name):
     with open(f"{doc_path}\\{video_id}.txt", "r") as f:
         document = f.read()
     for idx, chunk in enumerate(chunk_document(document, chunk_size=512)):
-        #check if chunk already exists in the database to avoid duplicates
-    #if not collection.get(ids=[f"{video_id}_{idx}"]):
         add_record(collection_id,
             {
                 "documents":[chunk],
                 "metadatas":[{"source": video_id}], # filter on these!
                 "ids":[f"{video_id}_{idx}"], # unique for each chunk of the document
                 "embeddings": [llm.embeddings(chunk)] # embed the chunk of text
-                #"embeddings": model.encode([chunk]).tolist() # embed the chunk of text
             }
         )
         log.stdout(get_record(collection_id=collection_id, record_id=f"{video_id}_{idx}"))
@@ -49,8 +48,6 @@ def query (text, collection_name):
     collection_id = get_or_create_collection(collection_name)
     # Generate embeddings
     embeddings = llm.embeddings(text) # embed the chunk of text
-    #embeddings = model.encode([text])
-    # Perform the query by sending a POST request
     query_params = {
         "collection": collection_name,
         "n_results": 2,
@@ -121,20 +118,6 @@ def add_record(collection_id, record):
     else:
         log.stdout(f"Failed to add record with status code {response.status_code}: {response.text}")
 
-# Function to upsert a record in a collection
-# def upsert_record(collection_id, record):
-#     endpoint = upsert_record_endpoint.replace("collection_id", collection_id)
-#     print(endpoint)
-#     payload = {
-#         "ids": [record["id"]],
-#         "records": [record["data"]]
-#     }
-#     response = requests.post(endpoint, json=payload)
-#     if response.status_code == 200:
-#         print("Record upserted successfully: " + response.text)
-#     else:
-#         print(f"Failed to upsert record with status code {response.status_code}: {response.text}")
-
 # Function to update a record in a collection
 def update_record(collection_id, record_id, updated_record):
     endpoint = update_record_endpoint.replace("collection_id", collection_id)
@@ -190,60 +173,7 @@ def test():
 
     get_record(collection_id, "4")
 
-    # record_to_upsert = {
-    # "id": "1",
-    # "metadatas": [{"source":"meta2"}],
-    # "embeddings": model.encode("Updated Another text for the collection.").tolist(),
-    # "data": {
-    #     "text": "Updated Another text for the collection.",
-    #     "embeddings": model.encode("Updated Another text for the collection.").tolist()
-    # }
-    # }
-    # upsert_record(collection_id, record_to_upsert)
-    # get_record(collection_id, "1")
-
-    # # Example data for querying
-    # texts = [
-    #     "what is another text"
-    # ]
-
-    # # query_params = {
-    # #     "parameter1": "another text",
-    # #     # Add other parameters as required
-    # # }
-    # # response = requests.post(query_endpoint.replace('collection_id', collection_id), json=query_params)
-
-    # # Generate embeddings
-    # embeddings = model.encode(texts)
-    # # Perform the query by sending a POST request
-    # query_params = {
-    #     "collection": collection_name,
-    #     "n_results": 1,
-    #     "query_embeddings": embeddings.tolist()  # Convert numpy array to list
-    # }
-
-    # # Perform the query by sending a POST request
-    # response = requests.post(query_endpoint.replace('collection_id', collection_id), json=query_params)
     query('what is another text', collection_name)
-    # Check if the request was successful
-    # if response.status_code == 200:
-    #     try:
-    #         # Parse the JSON response
-    #         query_result = response.json()
-    #         # Print the result (or handle it as needed)
-    #         log.stdout(query_result)
-    #     except requests.exceptions.JSONDecodeError:
-    #         log.stdout(f"Failed to decode JSON with status code {response.status_code}: {response.text}")
-    # else:
-    #     # log.stdout the error message if the request failed
-    #     log.stdout(f"Query failed with status code {response.status_code}: {response.text}")
-
-    # record_id_to_update = "1"
-    # updated_record = {
-    #     "field1": "new_value1",
-    #     "field2": "new_value2"
-    # }
-    # update_record(collection_id, record_id_to_update, updated_record)
 
     record_id_to_remove = "1"
     remove_record(collection_id, record_id_to_remove)

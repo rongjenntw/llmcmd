@@ -5,9 +5,10 @@ import pyautogui
 from youtube_transcript_api import YouTubeTranscriptApi
 import llmrag as cdu
 import log
-
-youtube_transcript_dir = 'c:\youtube_transcripts'
-collection_name = 'persisted_collection'
+with open('config.json', 'r') as file:
+    config = json.load(file)
+youtube_transcript_dir = config.get('rag_doc_dir')
+collection_name = config.get('rag_collection')
 # Sample text
 """
 [TOOL_CALLS] [{'name': 'get_current_weather', 'arguments': {'location': 'Tokyo', 'format': 'celsius'}}]

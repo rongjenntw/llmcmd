@@ -163,13 +163,6 @@ def combo_flow(user_promot=None):
 
     return prevresp
 
-    # if (to_translate):
-    #     response_trans = translation_flow(response, "English", "Chinese Traditional")
-    #     print(response_trans)
-    # if (to_read_out):
-    #     actions.read_out(response)
-    #     if(to_translate):
-    #         actions.read_out(response_trans, voice.JENNY)
 """
 ! = read out action
 # = translation action
@@ -182,14 +175,14 @@ def prompt_actions(user_prompt, prevresp, actor):
         prevresp = translation_flow(prevresp, "English", "Chinese Traditional")
         log.stdout(prevresp, log.DEBUG)
         actor = voiceutils.JENNY
-    print(prevresp)
+    #print(prevresp)
     if (to_read_out):
         voiceutils.read_out(prevresp, actor)
     return char_count, prevresp, actor
 
 def main():
     while True:
-        print(combo_flow())
+        combo_flow()
 
 def chat():
     simple_chat_flow()
