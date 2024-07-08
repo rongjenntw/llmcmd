@@ -11,6 +11,9 @@
 ### Installation:  
     pip install -r requirements.txt
     pyinstaller --onefile llmflows.py --name llmcmd
+    copy llmcmd and config.json to your desired execution directory
+    make necessary change to config.json
+    you will need Ollama and Chroma DB installed and running 
 
 ### Usage Single Command:
     llmcmd "~What is Python?"
