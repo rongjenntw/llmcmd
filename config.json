@@ -12,5 +12,6 @@
     "ragdb_url": "http://localhost:8000/api/v1",
     "ragdb_path": "youtube_db",
     "rag_collection": "persisted_collection",
-    "rag_doc_dir": "c:\\youtube_transcripts"
+    "rag_doc_dir": "c:\\youtube_transcripts",
+    "command_flow_os": "Windows 11 OS"
 }

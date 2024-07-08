@@ -5,7 +5,8 @@ import os
 """
 all llm flows are here
 """
-
+with open('config.json', 'r') as file:
+    config = json.load(file)
 def simple_chat_flow(system_prompt = "You are a helpful assistant."):
     """
     simple chat with llm
@@ -63,8 +64,8 @@ def translation_flow(prompt, source_lang, target_lang):
     return json.loads(response)['response']
 
 def command_flow (prompt):
-    context = """
-    You are a helpful computer assistant running on Windows 11 OS. 
+    context = f"""
+    You are a helpful computer assistant running on {config.get('command_flow_os')}. 
     You reply executable script.
     Your script should be enclosed by <script> tags.  
     This is an example for shell script: <script>start cmd</script>
