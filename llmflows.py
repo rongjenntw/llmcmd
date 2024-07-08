@@ -150,7 +150,10 @@ def combo_flow(user_promot=None):
     if "/" == user_prompt[:1]:
         command_flow(user_prompt[1:])
     elif char_count == 0:
-        os.system(user_prompt)
+        if user_prompt[:3] == 'cd ':
+            os.chdir(user_prompt[3:])
+        else:
+            os.system(user_prompt)
     elif "~" == user_prompt[:1]:
         response = simple_prompt_flow(user_prompt, "You are a helpful assistant.  You reply answers in plan text friendly for displaying on a terminal window.")
         log.stdout(response, log.DEBUG)
