@@ -1,4 +1,4 @@
 requests
 pyttsx3
-pyautagui
+pyautogui
 youtube_transcript_api
