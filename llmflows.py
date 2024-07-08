@@ -162,6 +162,7 @@ def combo_flow(user_promot=None):
 
     char_count, prevresp, actor = prompt_actions(user_prompt, response, actor)
 
+    print(prevresp)
     return prevresp
 
 """
