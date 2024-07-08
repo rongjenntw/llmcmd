@@ -1,0 +1,4 @@
+requests
+pyttsx3
+pyautagui
+youtube_transcript_api
