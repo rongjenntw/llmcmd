@@ -7,7 +7,7 @@ all llm flows are here
 """
 with open('config.json', 'r') as file:
     config = json.load(file)
-def simple_chat_flow(system_prompt = "You are a helpful assistant."):
+def simple_chat_flow(system_prompt = config.get('sys_prmpt_simple_chat')):
     """
     simple chat with llm
     enter '!' to read out the previous response from the chat bot
@@ -19,7 +19,7 @@ def simple_chat_flow(system_prompt = "You are a helpful assistant."):
     actor = voiceutils.BOB
     while True:
         user_prompt = input("chat> ")
-        char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor)
+        char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor, False)
         if(char_count == 0):
             msgs.append(
                 {"role":"user", "content": user_prompt}
@@ -59,18 +59,12 @@ def translation_flow(prompt, source_lang, target_lang):
     """
     simple translation with llm
     """
-    response = llm.generate(prompt, f"You translate user's prompt from {source_lang} to {target_lang}.", model = "qwen2")
+    response = llm.generate(prompt, config.get('sys_prmpt_translation'), model = "qwen2")
     #print(json.loads(response))
     return json.loads(response)['response']
 
 def command_flow (prompt):
-    context = f"""
-    You are a helpful computer assistant running on {config.get('command_flow_os')}. 
-    You reply executable script.
-    Your script should be enclosed by <script> tags.  
-    This is an example for shell script: <script>start cmd</script>
-    Example for python script: <script>py -c "import os; os.system('start cmd')"</script>
-    """
+    context = config.get('sys_prmpt_command')
     response = simple_prompt_flow(prompt, context)
     command = actions.extract_command (response)
     actions.execute(command)
@@ -165,22 +159,22 @@ def combo_flow(user_promot=None):
 
     char_count, prevresp, actor = prompt_actions(user_prompt, response, actor)
 
-    print(prevresp)
+    #print(prevresp)
     return prevresp
 
 """
 ! = read out action
 # = translation action
 """
-def prompt_actions(user_prompt, prevresp, actor):
+def prompt_actions(user_prompt, prevresp, actor, echo = True):
     char_count = sum([user_prompt[:3].count(c) for c in "~@#!"])
     to_translate = "#" in user_prompt[:3] and char_count>0
     to_read_out = "!" in user_prompt[:3] and char_count>0
     if (to_translate):
         prevresp = translation_flow(prevresp, "English", "Chinese Traditional")
-        log.stdout(prevresp, log.DEBUG)
+        if not echo: print(prevresp)
         actor = voiceutils.JENNY
-    #print(prevresp)
+    if echo: print(prevresp)
     if (to_read_out):
         voiceutils.read_out(prevresp, actor)
     return char_count, prevresp, actor

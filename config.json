@@ -7,11 +7,13 @@
     "llm_chat": "llama3",
     "llm_vision": "llava",
     "llm_embeddings": "nomic-embed-text",
-    "log_level_info": "4 = debug, 3 = info, 2 = warn, 1 = error, 0 = fatai",
+    "log_level_info": "4 = debug, 3 = info, 2 = warn, 1 = error, 0 = fatal",
     "log_level": 3,
     "ragdb_url": "http://localhost:8000/api/v1",
     "ragdb_path": "youtube_db",
     "rag_collection": "persisted_collection",
     "rag_doc_dir": "c:\\youtube_transcripts",
-    "command_flow_os": "Windows 11 OS"
+    "sys_prmpt_simple_chat": "You are a helpful assistant.",
+    "sys_prmpt_translation": "You translate user's prompt from English to Chinese.",
+    "sys_prmpt_command": "You are a helpful computer assistant running on Windows 11 OS. You reply executable script.  Your script should be enclosed by <script> tags.  This is an example for shell script: <script>start cmd</script>.  Example for python script: <script>py -c 'import os; os.system('start cmd')'</script>"
 }
