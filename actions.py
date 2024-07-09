@@ -5,7 +5,8 @@ import pyautogui
 from youtube_transcript_api import YouTubeTranscriptApi
 import llmrag as cdu
 import log
-with open('config.json', 'r') as file:
+
+with open(os.getenv('LLMCMD_CONFIG_FILE_PATH') or 'config.json', 'r') as file:
     config = json.load(file)
 youtube_transcript_dir = config.get('rag_doc_dir')
 collection_name = config.get('rag_collection')

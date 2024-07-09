@@ -5,6 +5,7 @@
     "llm_prompt": "gemma2",
     "llm_function": "mistral:instruct",
     "llm_chat": "llama3",
+    "llm_translate": "qwen2",
     "llm_vision": "llava",
     "llm_embeddings": "nomic-embed-text",
     "log_level_info": "4 = debug, 3 = info, 2 = warn, 1 = error, 0 = fatal",

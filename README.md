@@ -10,8 +10,9 @@
     
 ### Installation:  
     pip install -r requirements.txt
-    pyinstaller --onefile llmflows.py --name llmcmd
+    pyinstaller --onefile llmcmd.py --name llmcmd
     copy llmcmd and config.json to your desired execution directory
+    or set environment variable LLMCMD_CONFIG_FILE_PATH to config.json path
     make necessary change to config.json
     you will need Ollama and Chroma DB installed and running 
 
@@ -20,10 +21,11 @@
     llmcmd "@How many programming languages are there?"
     llmcmd "#What is Python used for?"
     llmcmd "@+https://www.youtube.com/watch?v=r5pXu1PAUkI"
+    llmcmd "@+https://text.npr.org/g-s1-8534"
 ### Usage Interactive:
     llmcmd
-    combo>~!#What is dark energy?
-    Dark energy is a energy fill out the majority of the universe.
+    llmcmd>~!#What is dark energy?
+    Dark energy is an energy fill out the majority of the universe.
     [Translated to Chinese]
     [Readout Chinese]
 ### Usage Chat:

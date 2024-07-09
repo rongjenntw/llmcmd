@@ -6,16 +6,14 @@ import requests, json, os
 #from sentence_transformers import SentenceTransformer
 import log, llm
 
-with open('config.json', 'r') as file:
-    config = json.load(file)
 # Load a pre-trained model
 #model = SentenceTransformer('all-MiniLM-L6-v2')
-doc_path = config.get('rag_doc_dir')
+doc_path = llm.config.get('rag_doc_dir')
 
 # Define the base URL of your ChromaDB REST API
-chroma_db_url = config.get('ragdb_url')
+chroma_db_url = llm.config.get('ragdb_url')
 # Define the collection name and the query parameters
-persist_directory = config.get('ragdb_path')
+persist_directory = llm.config.get('ragdb_path')
 #collection_name = "peristed_collection"
 
 # Define the endpoints for various operations

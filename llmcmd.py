@@ -5,9 +5,8 @@ import os
 """
 all llm flows are here
 """
-with open('config.json', 'r') as file:
-    config = json.load(file)
-def simple_chat_flow(system_prompt = config.get('sys_prmpt_simple_chat')):
+
+def simple_chat_flow(system_prompt = llm.config.get('sys_prmpt_simple_chat')):
     """
     simple chat with llm
     enter '!' to read out the previous response from the chat bot
@@ -59,12 +58,12 @@ def translation_flow(prompt, source_lang, target_lang):
     """
     simple translation with llm
     """
-    response = llm.generate(prompt, config.get('sys_prmpt_translation'), model = "qwen2")
+    response = llm.generate(prompt, llm.config.get('sys_prmpt_translation'), model = llm.config.get('llm_translate'))
     #print(json.loads(response))
     return json.loads(response)['response']
 
 def command_flow (prompt):
-    context = config.get('sys_prmpt_command')
+    context = llm.config.get('sys_prmpt_command')
     response = simple_prompt_flow(prompt, context)
     command = actions.extract_command (response)
     actions.execute(command)
@@ -134,7 +133,7 @@ def combo_flow(user_promot=None):
     # translate response from one language to another
     ! read the response outloud
     """   
-    user_prompt = user_promot or input("combo> ")
+    user_prompt = user_promot or input("llmcmd> ")
     #prevresp = "Beginning of conversation"
     actor = voiceutils.BOB
     #char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor)

@@ -1,5 +1,6 @@
-import requests, json
-with open('config.json', 'r') as file:
+import requests, json, os
+#print("LLMCMD_CONFIG_FILE_PATH: " + str(os.environ.get('LLMCMD_CONFIG_FILE_PATH')))
+with open(os.getenv('LLMCMD_CONFIG_FILE_PATH') or 'config.json', 'r') as file:
     config = json.load(file)
 #generate a response from llm
 def generate(prompt, context, model=config.get('llm_prompt')):
