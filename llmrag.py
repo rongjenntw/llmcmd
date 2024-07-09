@@ -2,7 +2,7 @@
 vector database utilities
 """
 
-import requests, json
+import requests, json, os
 #from sentence_transformers import SentenceTransformer
 import log, llm
 
@@ -31,7 +31,7 @@ get_record_endpoint = f"{chroma_db_url}/collections/collection_id/get"
 
 def add_youtub_transcript_to_db(video_id, collection_name):
     collection_id = get_or_create_collection(collection_name)
-    with open(f"{doc_path}\\{video_id}.txt", "r") as f:
+    with open(f"{doc_path}{os.sep}{video_id}.txt", "r") as f:
         document = f.read()
     for idx, chunk in enumerate(chunk_document(document, chunk_size=512)):
         add_record(collection_id,

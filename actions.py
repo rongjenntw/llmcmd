@@ -1,4 +1,4 @@
-import re, json, os
+import re, json, os, requests
 import base64
 from io import BytesIO
 import pyautogui
@@ -90,10 +90,18 @@ def save_text_to_file(file_path, content):
         print(f"File {file_path} already exists")
     
 def add_to_rag(url):
-    video_id = get_youtube_video_id(url)
-    document = get_youtube_transcript(video_id)
-    save_text_to_file(f"{youtube_transcript_dir}\\{video_id}.txt", document)
-    cdu.add_youtub_transcript_to_db(video_id, collection_name)
+    if("youtube.com" in url):
+        video_id = get_youtube_video_id(url)
+        document = get_youtube_transcript(video_id)
+        save_text_to_file(f"{youtube_transcript_dir}{os.sep}{video_id}.txt", document)
+        cdu.add_youtub_transcript_to_db(video_id, collection_name)
+    else:
+        #download the content from the url and save it to a file
+        response = requests.get(url)
+        encoded_bytes = base64.b64encode(url.encode('utf-8'))
+        encoded_string = encoded_bytes.decode('utf-8')
+        save_text_to_file(f"{youtube_transcript_dir}{os.sep}{encoded_string}.txt", response.content)
+        cdu.add_youtub_transcript_to_db(encoded_string, collection_name)
 
 def query_rag(query):
     response = cdu.query(query, collection_name)
