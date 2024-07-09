@@ -84,7 +84,7 @@ def get_youtube_transcript(video_id):
 def save_text_to_file(file_path, content):
     if not os.path.exists(file_path):
         with open(file_path, "w", encoding="utf-8") as f:
-            f.write(content)
+            f.write(str(content))
         print(f"Text saved to {file_path}")
     else:
         print(f"File {file_path} already exists")
