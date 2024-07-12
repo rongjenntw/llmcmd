@@ -179,7 +179,10 @@ def combo_flow(user_promot=None):
         response = simple_prompt_flow(user_prompt, "You are a helpful assistant.  You reply answers in plan text friendly for displaying on a terminal window.")
         log.stdout(response, log.DEBUG)
     elif "@+" in user_prompt[:2]:
-        actions.add_to_rag(user_prompt[2:])
+        if ("http" in user_prompt[:6]):
+            actions.add_to_rag(user_prompt[2:])
+        else: #local file
+            actions.add_file_to_rag(user_prompt[2:])
     elif "@" in user_prompt[:char_count]:
         response = rag_flow(user_prompt[char_count:])
         log.stdout(response, log.DEBUG)

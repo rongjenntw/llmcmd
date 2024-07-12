@@ -104,6 +104,9 @@ def add_to_rag(url):
         save_text_to_file(f"{youtube_transcript_dir}{os.sep}{encoded_string}.txt", response.content)
         cdu.add_youtub_transcript_to_db(encoded_string, collection_name)
 
+def add_file_to_rag(path):
+    cdu.add_youtub_transcript_to_db(None, collection_name, path)
+
 def query_rag(query):
     response = cdu.query(query, collection_name)
     log.stdout(str(response))
