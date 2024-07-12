@@ -1,4 +1,5 @@
 import json, voiceutils, functiondef
+import time
 import sys
 import llm, actions, log
 import os
@@ -103,13 +104,33 @@ def function_call_flow(prompt):
     print(json.loads(response)['response'])
     eval ("llmtools." + actions.transform_string_to_function_call(json.loads(response)['response']))
 
-def whats_on_my_screen (prompt = "describe what you see in this picture; pay attention to the text in the picture"):
+def whats_on_my_screen (prompt = llm.config.get('vision_prompt')):
     """
     take a screenshot of the screen and ask llm what it sees
     """
     screenshot = actions.take_screenshot_base64()
     response = llm.visual(prompt, [screenshot])
-    print(json.loads(response)['response'])
+    return json.loads(response)['response']
+
+def whats_changed_on_my_screen(prompt = llm.config.get('screen_changed_prompt'), 
+                               frame_seconds = llm.config.get('screen_changed_frame_seconds'), 
+                               duration_seconds = llm.config.get('screen_changed_duration_seconds')):
+    """
+    take 2 screenshots and report the differences between them
+    they are taken [frame_seconds] seconds apart
+    this process can be repeated for [duration_seconds] seconds
+    """
+    screenshot1 = actions.take_screenshot_base64()
+    begin_time_in_second = time.time()
+    report = ""
+    while True:
+        time.sleep(frame_seconds)
+        screenshot2 = actions.take_screenshot_base64()
+        response = llm.visual(prompt, [screenshot1, screenshot2])
+        report += (json.loads(response)['response'])+("\n")
+        if duration_seconds <= time.time() - begin_time_in_second: break
+        screenshot1 = screenshot2 # move forward in time
+    return report
 
 def refine_prompt_flow():
     """
@@ -137,17 +158,24 @@ def combo_flow(user_promot=None):
     #prevresp = "Beginning of conversation"
     actor = voiceutils.BOB
     #char_count, prevresp, actor = prompt_actions(user_prompt, prevresp, actor)
-    char_count = sum([user_prompt[:3].count(c) for c in "~@#!"])
+    char_count = sum([user_prompt[:3].count(c) for c in "~$@#!"])
     response = ""
     #response_trans = ""
     if "/" == user_prompt[:1]:
         command_flow(user_prompt[1:])
+    elif "$+" == user_prompt[:2]:
+        response = whats_changed_on_my_screen()
+    elif "$" in user_prompt[:char_count]:
+        if len(user_prompt[char_count:]) > 1:
+            response = whats_on_my_screen(user_prompt[char_count:])
+        else:
+            response = whats_on_my_screen()
     elif char_count == 0:
         if user_prompt[:3] == 'cd ':
             os.chdir(user_prompt[3:])
         else:
             os.system(user_prompt)
-    elif "~" == user_prompt[:1]:
+    elif "~" in user_prompt[:char_count]:
         response = simple_prompt_flow(user_prompt, "You are a helpful assistant.  You reply answers in plan text friendly for displaying on a terminal window.")
         log.stdout(response, log.DEBUG)
     elif "@+" in user_prompt[:2]:

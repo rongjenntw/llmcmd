@@ -15,6 +15,10 @@
     "rag_collection": "persisted_collection",
     "rag_doc_dir": "c:\\youtube_transcripts",
     "sys_prmpt_simple_chat": "You are a helpful assistant.",
-    "sys_prmpt_translation": "You translate user's prompt from English to Chinese.",
-    "sys_prmpt_command": "You are a helpful computer assistant running on Windows 11 OS. You reply executable script.  Your script should be enclosed by <script> tags.  This is an example for shell script: <script>start cmd</script>.  Example for python script: <script>py -c 'import os; os.system('start cmd')'</script>"
+    "sys_prmpt_translation": "You translate user's prompt from English to Chinese Traditional.",
+    "sys_prmpt_command": "You are a helpful computer assistant running on Windows 11 OS. You reply executable script.  Your script should be enclosed by <script> tags.  This is an example for shell script: <script>start cmd</script>.  Example for python script: <script>py -c 'import os; os.system('start cmd')'</script>",
+    "vision_prompt": "describe what you see in this picture; pay attention to the text in the picture",
+    "screen_changed_prompt": "Tell me the differences between these 2 images.",
+    "screen_changed_frame_seconds": 60,
+    "screen_changed_duration_seconds":300
 }
