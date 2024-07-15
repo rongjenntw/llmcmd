@@ -132,6 +132,22 @@ def whats_changed_on_my_screen(prompt = llm.config.get('screen_changed_prompt'),
         screenshot1 = screenshot2 # move forward in time
     return report
 
+def json_validation(prompt):
+    """
+    system prompt contains json schema
+    prompt contains json payload
+    this flow returns true if the json payload is valid
+    otherwise, return false with reason of failure
+    """
+    
+def db_query(prompt):
+    """
+    system prompt contains database schema
+    prompt contains user's query to the database
+    this flow returns a sql statement according to 
+    the prompt query
+    """
+
 def refine_prompt_flow():
     """
     rephrase user's quesetion by llm instructed to correct grammar and 

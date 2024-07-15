@@ -5,6 +5,8 @@ import pyautogui
 from youtube_transcript_api import YouTubeTranscriptApi
 import llmrag as cdu
 import log
+import fitz  # PyMuPDF
+
 
 with open(os.getenv('LLMCMD_CONFIG_FILE_PATH') or 'config.json', 'r') as file:
     config = json.load(file)
@@ -82,10 +84,14 @@ def get_youtube_transcript(video_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en','zh-Hant','zh-Hans'])
     return " ".join([entry['text'] for entry in transcript])
 
-def save_text_to_file(file_path, content):
+def save_text_to_file(file_path, content, mimetype = None):
     if not os.path.exists(file_path):
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(str(content))
+        if (mimetype):
+            with open(file_path, "wb") as f:
+                f.write(content)
+        else:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(str(content))
         print(f"Text saved to {file_path}")
     else:
         print(f"File {file_path} already exists")
@@ -101,10 +107,19 @@ def add_to_rag(url):
         response = requests.get(url)
         encoded_bytes = base64.b64encode(url.encode('utf-8'))
         encoded_string = encoded_bytes.decode('utf-8')
-        save_text_to_file(f"{youtube_transcript_dir}{os.sep}{encoded_string}.txt", response.content)
+        file_path = f"{youtube_transcript_dir}{os.sep}{encoded_string}"
+        txt_file_path = file_path + ".txt"
+        save_text_to_file(file_path, response.content, mimetype = response.headers.get('Content-Type'))
+        if is_pdf(file_path):
+            pdf_to_text(file_path, txt_file_path)
+        else:
+            os.rename(file_path, txt_file_path)
         cdu.add_youtub_transcript_to_db(encoded_string, collection_name)
 
 def add_file_to_rag(path):
+    if (is_pdf(path)):
+        pdf_to_text(path, path + ".txt")
+        path = path + ".txt"
     cdu.add_youtub_transcript_to_db(None, collection_name, path)
 
 def query_rag(query):
@@ -116,18 +131,25 @@ def query_rag(query):
     documents = response['documents']
     return ids, distances, metadatas, documents
 
-"""
-read_out is depreciated because gTTS require internat connection and 
-the tex it sent to google for voice.  gTTS cannot speed adjustment
-gTTS cannot change voice
-"""
-# def read_out (text, lang = 'en'):
-#     tts = gTTS(text = text, lang = lang, slow=False)
-#     soundfile = f"readout{lang}.mp3"
-#     tts.save(soundfile)
-    
-#     playsound.playsound(sound=soundfile,  block = True)
-#     os.remove(soundfile)
+def is_pdf(file_path):
+    try:
+        with open(file_path, 'rb') as file:
+            # Read the first 5 bytes
+            file_signature = file.read(5)
+            # Check if the file signature matches the PDF signature
+            return file_signature == b'%PDF-'
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+def pdf_to_text(pdf_path, txt_path):
+    document = fitz.open(pdf_path)
+    text = ""
+    for page_num in range(len(document)):
+        page = document.load_page(page_num)  # Load the page
+        text += page.get_text()  # Extract the text from the page
+    with open(txt_path, 'w', encoding='utf-8') as txt_file:
+        txt_file.write(text)
 
 if __name__=='__main__':
     # video_id = input('video id: ')

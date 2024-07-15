@@ -2,3 +2,4 @@ requests
 pyttsx3
 pyautogui
 youtube_transcript_api
+PyMuPDF

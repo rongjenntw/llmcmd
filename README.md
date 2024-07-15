@@ -1,10 +1,15 @@
 # Command Line LLM
 ## This program provide means to interact with llm on terminal.  Start your prompt with one or more of the following characters.
     no prefix: run command on terminal
-    / prefix to your prompt: ask llm to suggest an executable a command
-    ~ prefix to your prompt: simple prompt
-    @ prefix to your prompt: ask llm question referencing rag data
-    @+ add youtube transcript to rag
+    / prefix to your prompt: ask llm to suggest an executable command
+    ~ prefix to your prompt: simple question to llm
+    @ prefix to your prompt: ask llm a question by referencing rag data
+    @+ add document or youtube transcript to rag
+    $ or $your own prompt (requires llava)
+    - take a screenshot and ask LLM to about the screenshot
+    $+ or $+your own prompt (requires llava)
+    - take a screenshots every 60 seconds (frame_deplay) for a duration and ask LLM to compare screenshot over time
+      frame delay and duration can be changed in config.json 
 
     # translate response from English to Chinese or language defined in config.json prompt
     ! read the response outloud
@@ -56,6 +61,5 @@
       chat>!
       [read out Python is a scripting language.]
 ### TODO:
-- [ ] Add support for other document types.
-- [ ] Improve the translation functionality for other languages.
+- [ ] Add support for other document types.  Currently text and PDF.
 - [ ] Implement voice on MacOS.

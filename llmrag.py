@@ -33,7 +33,8 @@ def add_youtub_transcript_to_db(video_id, collection_name, path=None):
         path = f"{doc_path}{os.sep}{video_id}.txt"
     else:
         video_id = path
-    with open(path, "r") as f:
+    with open(path, "r", encoding='utf-8') as f:
+        log.stdout(path)
         document = f.read()
     for idx, chunk in enumerate(chunk_document(document, chunk_size=512)):
         add_record(collection_id,
