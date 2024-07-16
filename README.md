@@ -63,3 +63,6 @@
 ### TODO:
 - [ ] Add support for other document types.  Currently text and PDF.
 - [ ] Implement voice on MacOS.
+
+### download
+- windows <a href='dist/llmcmd.exe'>llmcmd.exe<a/>, <a href='config.json'>config.json</a>
